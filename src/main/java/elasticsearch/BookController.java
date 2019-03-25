@@ -1,12 +1,7 @@
 package elasticsearch;
 
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,17 +24,9 @@ public class BookController {
     }
 
     @GetMapping
-    public Iterable<Book> getAllBooks(){
-        final BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
-            .must(QueryBuilders.rangeQuery("price").gte(2000));
-        final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-            .withQuery(queryBuilder)
-//            .withIndices("bookdata")
-//            .withTypes("books")
-            .withPageable(PageRequest.of(1200, 10, Sort.Direction.DESC, "price"))
+    public Page<Book> getAllBooks(){
 
-            .build();
-        return bookDao.scroll(searchQuery);
+        return bookDao.getBooks();
     }
 
     @PostMapping

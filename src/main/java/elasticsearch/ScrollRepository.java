@@ -6,14 +6,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.ScrolledPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.repository.support.SimpleElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
@@ -40,8 +44,25 @@ public class ScrollRepository extends SimpleElasticsearchRepository<Book> {
         this.elasticsearchTemplate = elasticsearchTemplate;
     }
 
-    public Page<Book> scroll(SearchQuery searchQuery) {
+    public Page<Book> getBooks() {
+        final BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
+            .must(QueryBuilders.rangeQuery("price").gte(2000));
+        final NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+            .withQuery(queryBuilder)
+//            .withIndices("bookdata")
+//            .withTypes("books")
+            .withPageable(PageRequest.of(200, 10, Sort.Direction.ASC, "price"))
 
+            .build();
+
+        if (searchQuery.getPageable().getOffset() + searchQuery.getPageable().getPageSize() > 10000){
+            return scrollBooks(searchQuery);
+        } else {
+            return elasticsearchTemplate.queryForPage(searchQuery, Book.class);
+        }
+    }
+
+    private Page<Book> scrollBooks(final NativeSearchQuery searchQuery) {
         Page<Book> scroll = elasticsearchTemplate.startScroll(1000, searchQuery, Book.class);
 
         String scrollId = ((ScrolledPage) scroll).getScrollId();
