@@ -29,7 +29,8 @@ import static java.util.stream.Collectors.toList;
 public class ScrollRepository extends SimpleElasticsearchRepository<Book> {
 
     private final Map<String, Comparator<Book>> comparators;
-
+    @Autowired
+    private BookRepository bookRepository;
     @Autowired
     private final ElasticsearchTemplate elasticsearchTemplate;
 
@@ -58,7 +59,8 @@ public class ScrollRepository extends SimpleElasticsearchRepository<Book> {
         if (searchQuery.getPageable().getOffset() + searchQuery.getPageable().getPageSize() > 10000){
             return scrollBooks(searchQuery);
         } else {
-            return elasticsearchTemplate.queryForPage(searchQuery, Book.class);
+            return bookRepository.search(searchQuery);
+//            return elasticsearchTemplate.queryForPage(searchQuery, Book.class);
         }
     }
 

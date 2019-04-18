@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.1.3.RELEASE'
+    id 'org.springframework.boot' version '2.1.4.RELEASE'
     id 'java'
 }
 
@@ -22,10 +22,6 @@ repositories {
 def queryDslVersion = '4.1.3'
 
 dependencies {
-    
-}
-
-dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
@@ -41,5 +37,7 @@ dependencies {
             'org.projectlombok:lombok'
     )
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//    testImplementation 'org.springframework.boot:spring-boot-starter-web-test'
+//    testCompile 'pl.allegro.tech:embedded-elasticsearch:2.10.0'
 }
 
